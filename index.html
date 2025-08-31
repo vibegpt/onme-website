@@ -159,6 +159,7 @@
             const demoModal = document.getElementById('onme-demo-modal');
             const modalContent = demoModal.querySelector('div');
             let personImageBase64 = null;
+            let clothingImageBase64 = null;
 
             function openModal() {
                 modalContent.innerHTML = getWidgetHTML();
@@ -197,7 +198,7 @@
                 `;
             }
 
-            function attachWidgetListeners() {
+            async function attachWidgetListeners() {
                 const ageConfirmCheckbox = document.getElementById('age-confirm');
                 const generateButton = document.getElementById('onme-generate-button');
                 
@@ -217,36 +218,45 @@
                     generateButton.disabled = !ageConfirmCheckbox.checked;
                 };
 
+                // Pre-fetch and convert the clothing image to Base64 when the page loads
+                const clothingImgElement = document.getElementById('product-image-for-tryon');
+                clothingImageBase64 = await urlToBase64(clothingImgElement.src);
+                
                 generateButton.onclick = handleGeneration;
             }
 
             async function handleGeneration() {
                 updateUIState(true, 'Generating your try-on...');
                 
-                // Simulate the API call
                 try {
-                    const simulateApiCall = () => {
-                        return new Promise(resolve => {
-                            setTimeout(() => {
-                                // For the demo, we'll use a pre-made result image.
-                                // In a real scenario, this would be the AI-generated image URL.
-                                const resultImageUrl = 'https://i.imgur.com/7G1gL7C.png'; // Example result
-                                resolve(resultImageUrl);
-                            }, 2500); // 2.5 second delay
-                        });
-                    };
+                    // This is the relative path to your Vercel serverless function
+                    const API_URL = `/api/generate-tryon`;
 
-                    const imageUrl = await simulateApiCall();
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            personImage: personImageBase64,
+                            clothingImage: clothingImageBase64
+                        }),
+                    });
+                    
+                    if (!response.ok) {
+                        const errorResult = await response.json();
+                        throw new Error(errorResult.error || 'The AI model failed to generate an image.');
+                    }
+
+                    const result = await response.json();
+                    const imageUrl = `data:image/jpeg;base64,${result.generatedImage}`;
                     showResult(imageUrl);
 
                 } catch (error) {
-                    console.error("Simulation Error:", error);
+                    console.error("API Error:", error);
                     updateUIState(false, `Error: ${error.message}`);
                 }
             }
             
             function showResult(imageUrl) {
-                // Simplified result view without Vibe Studio
                 updateUIState(false); // Hide spinner
                 modalContent.innerHTML = `
                     <button id="onme-modal-close-button" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-3xl z-10">&times;</button>
@@ -265,6 +275,17 @@
                 reader.onload = () => resolve(reader.result.split(',')[1]);
                 reader.onerror = error => reject(error);
             });
+            
+            const urlToBase64 = async (url) => {
+                const response = await fetch(url);
+                const blob = await response.blob();
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result.split(',')[1]);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(blob);
+                });
+            };
             
             const updateUIState = (isLoading = false, message = '') => {
                 const spinner = document.getElementById('onme-loading-spinner');
