@@ -222,7 +222,6 @@
             'https://images.pexels.com/photos/247929/pexels-photo-247929.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
             'https://images.pexels.com/photos/931007/pexels-photo-931007.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'
         ];
-        // FIX: Using emojis instead of external SVG URLs to avoid CORS issues
         const STICKERS = ['✨', '🌸', '📸', '🔥', '❤️', '🪐'];
 
         const clothingImageBase64 = `PASTE_YOUR_FULL_BASE64_STRING_HERE`;
@@ -267,7 +266,6 @@
         }
 
         function getVibeStudioHTML() {
-            // FIX: Added a dedicated <img> tag for the scene background
             return `
           <div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold">Vibe Studio</h2></div>
           <div id="onme-modal-result-container" class="relative w-full max-w-sm mx-auto aspect-[3/4] bg-gray-200 rounded-xl overflow-hidden shadow-inner flex items-center justify-center">
@@ -355,7 +353,8 @@
             const framesPanel = document.getElementById('onme-frames-panel');
             const downloadButton = document.getElementById('onme-modal-download-button');
 
-            scenesPanel.innerHTML = SCENES.map(url => `<img src="${url}" class="w-full h-16 object-cover rounded cursor-pointer hover:opacity-75">`).join('');
+            const scenesHTML = `<div class="text-center p-2 border-2 rounded cursor-pointer hover:bg-gray-100">None</div>` + SCENES.map(url => `<img src="${url}" class="w-full h-16 object-cover rounded cursor-pointer hover:opacity-75">`).join('');
+            scenesPanel.innerHTML = scenesHTML;
             stickersPanel.innerHTML = STICKERS.map(emoji => `<div class="text-3xl text-center p-1 rounded cursor-pointer hover:bg-gray-200">${emoji}</div>`).join('');
             framesPanel.innerHTML = ['None', 'Polaroid', 'Neon', 'Film'].map(name => `<div class="text-center p-2 border-2 rounded cursor-pointer hover:bg-gray-100">${name}</div>`).join('');
 
@@ -368,16 +367,22 @@
                 };
             });
 
-            // FIX: Logic now targets the dedicated background image element
+            // FIX: Scenes logic updated to use mix-blend-mode for transparency simulation
             scenesPanel.onclick = (e) => {
+                const resultImage = document.getElementById('onme-modal-result-image');
+                const background = document.getElementById('onme-scene-background');
+                
                 if (e.target.tagName === 'IMG') {
-                    document.getElementById('onme-scene-background').src = e.target.src;
+                    background.src = e.target.src;
+                    resultImage.style.mixBlendMode = 'multiply';
+                } else if (e.target.innerText === 'None') {
+                    background.src = '';
+                    resultImage.style.mixBlendMode = 'normal';
                 }
             };
 
-            // FIX: Logic now creates a draggable div with an emoji
             stickersPanel.onclick = (e) => {
-                if (e.target.tagName !== 'DIV') return;
+                if (!e.target.innerText) return;
                 const sticker = document.createElement('div');
                 sticker.innerText = e.target.innerText;
                 sticker.className = 'onme-sticker';
@@ -418,7 +423,8 @@
             document.getElementById('onme-generate-button').classList.toggle('hidden', isLoading);
             document.getElementById('onme-message').textContent = message;
         };
-
+        
+        // FIX: Sticker drag logic updated to use correct coordinates
         const handleStickerDrag = (e) => {
             e.preventDefault();
             const sticker = e.target;
@@ -426,15 +432,17 @@
             let offsetX = e.clientX - sticker.getBoundingClientRect().left;
             let offsetY = e.clientY - sticker.getBoundingClientRect().top;
 
-            function moveAt(pageX, pageY) {
-                sticker.style.left = pageX - sticker.parentElement.getBoundingClientRect().left - offsetX + 'px';
-                sticker.style.top = pageY - sticker.parentElement.getBoundingClientRect().top - offsetY + 'px';
+            function moveAt(clientX, clientY) {
+                const parentRect = sticker.parentElement.getBoundingClientRect();
+                sticker.style.left = clientX - parentRect.left - offsetX + 'px';
+                sticker.style.top = clientY - parentRect.top - offsetY + 'px';
             }
 
             function onMouseMove(event) {
-                moveAt(event.pageX, event.pageY);
+                moveAt(event.clientX, event.clientY);
             }
             document.addEventListener('mousemove', onMouseMove);
+            
             sticker.onmouseup = () => {
                 document.removeEventListener('mousemove', onMouseMove);
                 sticker.onmouseup = null;
