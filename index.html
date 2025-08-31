@@ -215,15 +215,7 @@
         const launchButton = document.getElementById('launch-demo-button');
         const demoModal = document.getElementById('onme-demo-modal');
         const modalContent = demoModal.querySelector('div');
-        const SCENES = [
-            'https://images.pexels.com/photos/1638324/pexels-photo-1638324.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-            'https://images.pexels.com/photos/3769138/pexels-photo-3769138.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-            'https://images.pexels.com/photos/21014/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-            'https://images.pexels.com/photos/247929/pexels-photo-247929.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-            'https://images.pexels.com/photos/931007/pexels-photo-931007.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'
-        ];
         const STICKERS = ['✨', '🌸', '📸', '🔥', '❤️', '🪐'];
-
         const clothingImageBase64 = `PASTE_YOUR_FULL_BASE64_STRING_HERE`;
         let personImageBase64 = null;
 
@@ -266,20 +258,18 @@
         }
 
         function getVibeStudioHTML() {
+            // NOTE: Scenes functionality has been removed from the HTML for a cleaner demo.
             return `
           <div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold">Vibe Studio</h2></div>
           <div id="onme-modal-result-container" class="relative w-full max-w-sm mx-auto aspect-[3/4] bg-gray-200 rounded-xl overflow-hidden shadow-inner flex items-center justify-center">
-            <img id="onme-scene-background" class="absolute inset-0 w-full h-full object-cover" src="" alt="">
             <img id="onme-modal-result-image" alt="Generated image" class="absolute inset-0 w-full h-full object-contain">
             <div id="onme-modal-sticker-container" class="absolute inset-0 w-full h-full"></div>
           </div>
           <div class="flex justify-center border-b my-4">
-            <button data-tab="scenes" class="vibe-tab active flex-1 py-2 font-semibold border-b-2">Scenes</button>
-            <button data-tab="stickers" class="vibe-tab flex-1 py-2 font-semibold border-b-2 border-transparent">Stickers</button>
+            <button data-tab="stickers" class="vibe-tab active flex-1 py-2 font-semibold border-b-2">Stickers</button>
             <button data-tab="frames" class="vibe-tab flex-1 py-2 font-semibold border-b-2 border-transparent">Frames</button>
           </div>
-          <div id="onme-scenes-panel" class="vibe-panel grid grid-cols-5 gap-2"></div>
-          <div id="onme-stickers-panel" class="vibe-panel hidden grid grid-cols-6 gap-2"></div>
+          <div id="onme-stickers-panel" class="vibe-panel grid grid-cols-6 gap-2"></div>
           <div id="onme-frames-panel" class="vibe-panel hidden grid grid-cols-5 gap-2"></div>
           <div class="text-center mt-6"><button id="onme-modal-download-button" class="cta-button text-white font-bold py-3 px-8 rounded-full hover:bg-indigo-700 text-lg shadow-lg">Download</button></div>
         `;
@@ -348,13 +338,10 @@
         function attachVibeStudioListeners() {
             const modalResultContainer = document.getElementById('onme-modal-result-container');
             const stickerContainer = document.getElementById('onme-modal-sticker-container');
-            const scenesPanel = document.getElementById('onme-scenes-panel');
             const stickersPanel = document.getElementById('onme-stickers-panel');
             const framesPanel = document.getElementById('onme-frames-panel');
             const downloadButton = document.getElementById('onme-modal-download-button');
-
-            const scenesHTML = `<div class="text-center p-2 border-2 rounded cursor-pointer hover:bg-gray-100">None</div>` + SCENES.map(url => `<img src="${url}" class="w-full h-16 object-cover rounded cursor-pointer hover:opacity-75">`).join('');
-            scenesPanel.innerHTML = scenesHTML;
+            
             stickersPanel.innerHTML = STICKERS.map(emoji => `<div class="text-3xl text-center p-1 rounded cursor-pointer hover:bg-gray-200">${emoji}</div>`).join('');
             framesPanel.innerHTML = ['None', 'Polaroid', 'Neon', 'Film'].map(name => `<div class="text-center p-2 border-2 rounded cursor-pointer hover:bg-gray-100">${name}</div>`).join('');
 
@@ -366,20 +353,6 @@
                     document.getElementById(`onme-${tab.dataset.tab}-panel`).classList.remove('hidden');
                 };
             });
-
-            // FIX: Scenes logic updated to use mix-blend-mode for transparency simulation
-            scenesPanel.onclick = (e) => {
-                const resultImage = document.getElementById('onme-modal-result-image');
-                const background = document.getElementById('onme-scene-background');
-                
-                if (e.target.tagName === 'IMG') {
-                    background.src = e.target.src;
-                    resultImage.style.mixBlendMode = 'multiply';
-                } else if (e.target.innerText === 'None') {
-                    background.src = '';
-                    resultImage.style.mixBlendMode = 'normal';
-                }
-            };
 
             stickersPanel.onclick = (e) => {
                 if (!e.target.innerText) return;
@@ -424,7 +397,6 @@
             document.getElementById('onme-message').textContent = message;
         };
         
-        // FIX: Sticker drag logic updated to use correct coordinates
         const handleStickerDrag = (e) => {
             e.preventDefault();
             const sticker = e.target;
