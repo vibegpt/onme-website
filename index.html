@@ -22,8 +22,8 @@
     .onme-frame-polaroid { border: 15px solid white; border-bottom-width: 60px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); filter: sepia(0.2) saturate(1.2); }
     .onme-frame-neon { border: 5px solid #f0f; box-shadow: 0 0 10px #f0f, 0 0 20px #f0f; }
     .onme-frame-film { border: 20px solid #000; border-image: repeating-linear-gradient(0deg, #000, #000 10px, #fff 10px, #fff 12px, #000 12px, #000 20px) 20; filter: grayscale(0.5) contrast(1.1); }
-    .onme-sticker { position: absolute; cursor: move; user-select: none; width: 60px; height: auto; transition: transform 0.1s; }
-    .onme-sticker.dragging { transform: scale(1.1); box-shadow: 0 0 15px rgba(0,0,0,0.3); }
+    .onme-sticker { position: absolute; cursor: move; user-select: none; font-size: 48px; line-height: 1; transition: transform 0.1s; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+    .onme-sticker.dragging { transform: scale(1.1); }
   </style>
 </head>
 <body class="antialiased">
@@ -222,14 +222,8 @@
             'https://images.pexels.com/photos/247929/pexels-photo-247929.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
             'https://images.pexels.com/photos/931007/pexels-photo-931007.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'
         ];
-        const STICKERS = [
-            'https://www.svgrepo.com/show/509939/sparkle.svg',
-            'https://www.svgrepo.com/show/521692/flower.svg',
-            'https://www.svgrepo.com/show/530438/camera.svg',
-            'https://www.svgrepo.com/show/508930/fire.svg',
-            'https://www.svgrepo.com/show/493540/heart-love.svg',
-            'https://www.svgrepo.com/show/521876/planet.svg'
-        ];
+        // FIX: Using emojis instead of external SVG URLs to avoid CORS issues
+        const STICKERS = ['✨', '🌸', '📸', '🔥', '❤️', '🪐'];
 
         const clothingImageBase64 = `PASTE_YOUR_FULL_BASE64_STRING_HERE`;
         let personImageBase64 = null;
@@ -273,9 +267,11 @@
         }
 
         function getVibeStudioHTML() {
+            // FIX: Added a dedicated <img> tag for the scene background
             return `
           <div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold">Vibe Studio</h2></div>
-          <div id="onme-modal-result-container" class="relative w-full max-w-sm mx-auto aspect-[3/4] bg-gray-200 rounded-xl overflow-hidden shadow-inner flex items-center justify-center bg-cover bg-center">
+          <div id="onme-modal-result-container" class="relative w-full max-w-sm mx-auto aspect-[3/4] bg-gray-200 rounded-xl overflow-hidden shadow-inner flex items-center justify-center">
+            <img id="onme-scene-background" class="absolute inset-0 w-full h-full object-cover" src="" alt="">
             <img id="onme-modal-result-image" alt="Generated image" class="absolute inset-0 w-full h-full object-contain">
             <div id="onme-modal-sticker-container" class="absolute inset-0 w-full h-full"></div>
           </div>
@@ -321,21 +317,16 @@
             updateUIState(true, 'Generating your try-on...');
 
             try {
-                // This function now simulates waiting for a server response.
                 const simulateApiCall = () => {
                     return new Promise(resolve => {
                         setTimeout(() => {
-                            // In a real app, the API would return the new image.
-                            // For this demo, we just return the user's original photo
-                            // to prove the UI flow works.
                             console.log("Simulating API success!");
                             resolve(personImageBase64);
-                        }, 2500); // Wait 2.5 seconds
+                        }, 2500);
                     });
                 };
 
                 const base64Data = await simulateApiCall();
-
                 if (!base64Data) throw new Error('No image data returned from simulated API.');
 
                 const imageUrl = `data:image/png;base64,${base64Data}`;
@@ -365,7 +356,7 @@
             const downloadButton = document.getElementById('onme-modal-download-button');
 
             scenesPanel.innerHTML = SCENES.map(url => `<img src="${url}" class="w-full h-16 object-cover rounded cursor-pointer hover:opacity-75">`).join('');
-            stickersPanel.innerHTML = STICKERS.map(url => `<img src="${url}" class="w-full h-12 object-contain p-1 rounded cursor-pointer hover:bg-gray-200">`).join('');
+            stickersPanel.innerHTML = STICKERS.map(emoji => `<div class="text-3xl text-center p-1 rounded cursor-pointer hover:bg-gray-200">${emoji}</div>`).join('');
             framesPanel.innerHTML = ['None', 'Polaroid', 'Neon', 'Film'].map(name => `<div class="text-center p-2 border-2 rounded cursor-pointer hover:bg-gray-100">${name}</div>`).join('');
 
             document.querySelectorAll('.vibe-tab').forEach(tab => {
@@ -377,14 +368,18 @@
                 };
             });
 
+            // FIX: Logic now targets the dedicated background image element
             scenesPanel.onclick = (e) => {
-                if (e.target.tagName === 'IMG') modalResultContainer.style.backgroundImage = `url(${e.target.src})`;
+                if (e.target.tagName === 'IMG') {
+                    document.getElementById('onme-scene-background').src = e.target.src;
+                }
             };
 
+            // FIX: Logic now creates a draggable div with an emoji
             stickersPanel.onclick = (e) => {
-                if (e.target.tagName !== 'IMG') return;
-                const sticker = document.createElement('img');
-                sticker.src = e.target.src;
+                if (e.target.tagName !== 'DIV') return;
+                const sticker = document.createElement('div');
+                sticker.innerText = e.target.innerText;
                 sticker.className = 'onme-sticker';
                 sticker.style.left = '50%';
                 sticker.style.top = '50%';
