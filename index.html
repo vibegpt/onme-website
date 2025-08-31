@@ -1,495 +1,489 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OnMe - The AI Virtual Try-On That Drives Social Engagement</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #030712; /* Nearly black */
-            color: #f9fafb; /* Off-white */
-        }
-        .gradient-text {
-            background: linear-gradient(to right, #818cf8, #c084fc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .feature-card {
-            background-color: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-        }
-        .feature-card:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            transform: translateY(-5px);
-        }
-        .cta-button {
-            background: linear-gradient(to right, #6366f1, #a855f7);
-            transition: all 0.3s ease;
-        }
-        .cta-button:hover {
-            box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
-        }
-        .trust-icon {
-            background: linear-gradient(to bottom right, #4338ca, #a855f7);
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        /* Demo-specific styles */
-        #onme-demo-modal {
-            background-color: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
-            transition: opacity 0.3s ease-in-out;
-        }
-        #onme-demo-modal .spinner { 
-            border-top-color: #4f46e5; 
-            animation: onme-spin 1s linear infinite; 
-        }
-        @keyframes onme-spin { to { transform: rotate(360deg); } }
-        #onme-demo-modal .vibe-tab.active { border-color: #4f46e5; color: #4f46e5; }
-        .onme-frame-polaroid { border: 15px solid white; border-bottom-width: 60px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); filter: sepia(0.2) saturate(1.2); }
-        .onme-frame-neon { border: 5px solid #f0f; box-shadow: 0 0 10px #f0f, 0 0 20px #f0f; }
-        .onme-frame-film { border: 20px solid #000; border-image: repeating-linear-gradient(0deg, #000, #000 10px, #fff 10px, #fff 12px, #000 12px, #000 20px) 20; filter: grayscale(0.5) contrast(1.1); }
-        .onme-sticker { position: absolute; cursor: move; user-select: none; width: 60px; height: auto; transition: transform 0.1s; }
-        .onme-sticker.dragging { transform: scale(1.1); box-shadow: 0 0 15px rgba(0,0,0,0.3); }
-
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OnMe - The AI Virtual Try-On That Drives Social Engagement</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    body { font-family: "Inter", sans-serif; background-color: #030712; color: #f9fafb; }
+    .gradient-text { background: linear-gradient(to right, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .feature-card { background-color: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease; }
+    .feature-card:hover { background-color: rgba(255, 255, 255, 0.1); transform: translateY(-5px); }
+    .cta-button { background: linear-gradient(to right, #6366f1, #a855f7); transition: all 0.3s ease; }
+    .cta-button:hover { box-shadow: 0 0 20px rgba(168, 85, 247, 0.5); }
+    .trust-icon { background: linear-gradient(to bottom right, #4338ca, #a855f7); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    #onme-demo-modal { background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); transition: opacity 0.3s ease-in-out; }
+    #onme-demo-modal .spinner { border-top-color: #4f46e5; animation: onme-spin 1s linear infinite; }
+    @keyframes onme-spin { to { transform: rotate(360deg); } }
+    #onme-demo-modal .vibe-tab.active { border-color: #4f46e5; color: #4f46e5; }
+    .onme-frame-polaroid { border: 15px solid white; border-bottom-width: 60px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); filter: sepia(0.2) saturate(1.2); }
+    .onme-frame-neon { border: 5px solid #f0f; box-shadow: 0 0 10px #f0f, 0 0 20px #f0f; }
+    .onme-frame-film { border: 20px solid #000; border-image: repeating-linear-gradient(0deg, #000, #000 10px, #fff 10px, #fff 12px, #000 12px, #000 20px) 20; filter: grayscale(0.5) contrast(1.1); }
+    .onme-sticker { position: absolute; cursor: move; user-select: none; width: 60px; height: auto; transition: transform 0.1s; }
+    .onme-sticker.dragging { transform: scale(1.1); box-shadow: 0 0 15px rgba(0,0,0,0.3); }
+  </style>
 </head>
 <body class="antialiased">
+  <!-- Header -->
+  <header class="py-4 px-4 md:px-8">
+    <nav class="container mx-auto flex justify-between items-center">
+      <h1 class="text-3xl font-bold">OnMe</h1>
+      <div>
+        <a href="#pricing" class="text-gray-300 hover:text-white mr-6">Pricing</a>
+        <a href="https://app.onme.fit" class="cta-button text-white font-semibold py-2 px-5 rounded-lg">Sign In</a>
+      </div>
+    </nav>
+  </header>
 
-    <!-- Header -->
-    <header class="py-4 px-4 md:px-8">
-        <nav class="container mx-auto flex justify-between items-center">
-            <h1 class="text-3xl font-bold">OnMe</h1>
-            <div>
-                <a href="#pricing" class="text-gray-300 hover:text-white mr-6">Pricing</a>
-                <a href="https://app.onme.fit" class="cta-button text-white font-semibold py-2 px-5 rounded-lg">Sign In</a>
-            </div>
-        </nav>
-    </header>
-
-    <!-- Hero Section -->
-    <section class="text-center py-20 md:py-32 px-4">
-        <div class="container mx-auto">
-            <h2 class="text-4xl md:text-6xl font-extrabold leading-tight">
-                Turn Shoppers into <br class="hidden md:block">
-                <span class="gradient-text">Your Best Marketers</span>
-            </h2>
-            <p class="text-lg md:text-xl text-gray-400 mt-6 max-w-2xl mx-auto">
-                OnMe is the AI virtual try-on that doesn't just increase conversions. It empowers your customers to create and share unique, branded content, driving organic growth.
-            </p>
-            <a href="https://app.onme.fit" class="cta-button text-white font-bold py-4 px-8 rounded-full inline-block mt-10 text-lg">Get Started For Free</a>
-        </div>
-    </section>
-
-    <!-- Interactive Demo Section -->
-    <section class="px-4">
-        <div class="container mx-auto">
-            <div class="bg-gray-800 border border-gray-700 rounded-2xl p-8 md:p-12">
-                <div class="text-center mb-8">
-                    <h3 class="text-3xl font-bold">Experience OnMe Live</h3>
-                    <p class="text-gray-400 mt-2">Click the button below to see how the widget works.</p>
-                </div>
-                <div class="max-w-4xl mx-auto grid md:grid-cols-2 gap-8 items-center bg-gray-900 p-8 rounded-lg">
-                    <div>
-                        <img id="product-image-for-tryon" src="https://images.pexels.com/photos/1858488/pexels-photo-1858488.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="Stylish jacket" class="rounded-lg shadow-2xl w-full aspect-[4/5] object-cover">
-                    </div>
-                    <div class="text-center md:text-left">
-                        <h4 class="text-2xl font-bold">Premium Leather Jacket</h4>
-                        <p class="text-3xl font-light my-2">$299.00</p>
-                        <p class="text-gray-400 text-sm mb-6">A timeless jacket crafted from genuine leather. Perfect for any occasion.</p>
-                        <button id="launch-demo-button" class="cta-button text-white font-semibold py-3 px-6 rounded-lg w-full md:w-auto">
-                            ✨ Virtually Try On with OnMe
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- How It Works Section -->
-    <section class="py-20 md:py-28 px-4">
-        <div class="container mx-auto text-center">
-            <h3 class="text-3xl md:text-4xl font-bold mb-12">Effortless for You, Magical for Them.</h3>
-            <div class="grid md:grid-cols-3 gap-8 md:gap-12">
-                <div class="text-center">
-                    <div class="text-5xl mb-4">1.</div>
-                    <h4 class="text-xl font-semibold mb-2">Instant Try-On</h4>
-                    <p class="text-gray-400">Shoppers upload a photo and instantly see your products on themselves, boosting confidence and reducing returns.</p>
-                </div>
-                <div class="text-center">
-                    <div class="text-5xl mb-4">2.</div>
-                    <h4 class="text-xl font-semibold mb-2">Unleash Creativity</h4>
-                    <p class="text-gray-400">Our Vibe Studio lets customers style their new look with unique backgrounds, stickers, and frames.</p>
-                </div>
-                <div class="text-center">
-                    <div class="text-5xl mb-4">3.</div>
-                    <h4 class="text-xl font-semibold mb-2">Drive Organic Shares</h4>
-                    <p class="text-gray-400">Users download their creation and share it to TikTok and Instagram, creating powerful user-generated content for your brand.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features Section -->
-    <section class="py-20 md:py-28 px-4 bg-gray-900">
-        <div class="container mx-auto">
-            <div class="text-center">
-                 <h3 class="text-3xl md:text-4xl font-bold mb-12">More Than a Widget. It's a Growth Engine.</h3>
-            </div>
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div class="feature-card p-6 rounded-lg">
-                    <h4 class="text-lg font-semibold">One-Click Setup</h4>
-                    <p class="text-gray-400 mt-2">Integrate seamlessly with our official Shopify and WordPress apps. No coding required.</p>
-                </div>
-                <div class="feature-card p-6 rounded-lg">
-                    <h4 class="text-lg font-semibold">Brand-Ready Customization</h4>
-                    <p class="text-gray-400 mt-2">Automatically detect your site's style or use our simple tools to match your brand's colors, fonts, and feel.</p>
-                </div>
-                <div class="feature-card p-6 rounded-lg">
-                    <h4 class="text-lg font-semibold">Actionable Analytics</h4>
-                    <p class="text-gray-400 mt-2">Track try-ons and engagement directly from your dashboard to see your ROI in real-time.</p>
-                </div>
-                 <div class="feature-card p-6 rounded-lg">
-                    <h4 class="text-lg font-semibold">Blazing Fast AI</h4>
-                    <p class="text-gray-400 mt-2">Our optimized AI pipeline delivers high-quality try-ons in seconds, keeping your customers engaged.</p>
-                </div>
-                 <div class="feature-card p-6 rounded-lg">
-                    <h4 class="text-lg font-semibold">Secure & Private</h4>
-                    <p class="text-gray-400 mt-2">We process images ephemerally and never store user photos, ensuring complete privacy and trust.</p>
-                </div>
-                <div class="feature-card p-6 rounded-lg">
-                    <h4 class="text-lg font-semibold">Guided AI for Perfect Results</h4>
-                    <p class="text-gray-400 mt-2">We intelligently guide your customers to provide the best photos, ensuring high-quality, realistic results every time.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <!-- Trust & Safety Section -->
-    <section class="py-20 md:py-28 px-4">
-        <div class="container mx-auto">
-            <div class="text-center">
-                 <h3 class="text-3xl md:text-4xl font-bold mb-12">Built on Trust & Safety</h3>
-            </div>
-            <div class="grid md:grid-cols-2 gap-8 md:gap-16 max-w-4xl mx-auto">
-                <div class="flex flex-col items-center text-center">
-                    <div class="trust-icon mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                    </div>
-                    <h4 class="text-xl font-semibold mb-2">Our Privacy Promise</h4>
-                    <p class="text-gray-400">User photos are processed ephemerally and are never stored. We cannot see them, and they are permanently deleted the moment a try-on is generated. Your customers' privacy is absolute.</p>
-                </div>
-                <div class="flex flex-col items-center text-center">
-                     <div class="trust-icon mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
-                    </div>
-                    <h4 class="text-xl font-semibold mb-2">Commitment to Safety</h4>
-                    <p class="text-gray-400">OnMe is a service for users 18 and older. We enforce this with a clear age-gate in our widget and strict Terms of Service to ensure a safe and responsible experience for everyone.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Pricing Section -->
-    <section id="pricing" class="py-20 md:py-28 px-4 bg-gray-900">
-        <div class="container mx-auto">
-             <div class="text-center">
-                 <h3 class="text-3xl md:text-4xl font-bold mb-12">Choose Your Plan</h3>
-            </div>
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto items-start">
-                <!-- Core Plan -->
-                <div class="feature-card w-full p-8 rounded-lg flex flex-col h-full">
-                     <h4 class="text-xl font-semibold">OnMe Core</h4>
-                     <p class="text-4xl font-bold my-4">$19<span class="text-base font-medium text-gray-400">/mo</span></p>
-                     <ul class="space-y-3 text-gray-300 mb-6 flex-grow">
-                        <li><span class="text-purple-400 mr-2">✓</span>Basic Try-On Widget</li>
-                        <li><span class="text-purple-400 mr-2">✓</span>Up to 1,000 try-ons/mo</li>
-                     </ul>
-                     <a href="https://app.onme.fit" class="w-full mt-auto block text-center bg-gray-600 text-white font-semibold py-3 px-4 rounded-md hover:bg-gray-700 transition-colors">Choose Core</a>
-                </div>
-                 <!-- Vibe Plan -->
-                <div class="w-full p-8 rounded-lg border-2 border-purple-500 relative flex flex-col h-full" style="box-shadow: 0 0 30px rgba(168, 85, 247, 0.3);">
-                    <div class="absolute top-0 -translate-y-1/2 bg-purple-500 text-white text-xs font-bold px-3 py-1 rounded-full">MOST POPULAR</div>
-                     <h4 class="text-xl font-semibold">OnMe Vibe</h4>
-                     <p class="text-4xl font-bold my-4">$49<span class="text-base font-medium text-gray-400">/mo</span></p>
-                     <ul class="space-y-3 text-gray-300 mb-6 flex-grow">
-                        <li><span class="text-purple-400 mr-2">✓</span>Everything in Core, plus:</li>
-                        <li><span class="text-purple-400 mr-2">✓</span>The Vibe Studio</li>
-                        <li><span class="text-purple-400 mr-2">✓</span>Unlimited try-ons</li>
-                     </ul>
-                     <a href="https://app.onme.fit" class="cta-button w-full mt-auto block text-center text-white font-semibold py-3 px-4 rounded-md">Choose Vibe</a>
-                </div>
-                <!-- Enterprise Plan -->
-                <div class="feature-card w-full p-8 rounded-lg flex flex-col h-full">
-                     <h4 class="text-xl font-semibold">Enterprise</h4>
-                     <p class="text-4xl font-bold my-4">Custom</p>
-                     <ul class="space-y-3 text-gray-300 mb-6 flex-grow">
-                        <li><span class="text-purple-400 mr-2">✓</span>Everything in Vibe, plus:</li>
-                        <li><span class="text-purple-400 mr-2">✓</span>Dedicated Support & Onboarding</li>
-                        <li><span class="text-purple-400 mr-2">✓</span>Custom Integrations</li>
-                        <li><span class="text-purple-400 mr-2">✓</span>API Access</li>
-                     </ul>
-                     <a href="mailto:sales@onme.fit" class="w-full mt-auto block text-center border-2 border-gray-500 text-white font-semibold py-3 px-4 rounded-md hover:bg-gray-700 hover:border-gray-700 transition-colors">Contact Sales</a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="border-t border-gray-800 mt-20">
-        <div class="container mx-auto py-8 px-4 text-center text-gray-500">
-            <p>&copy; 2025 OnMe. All rights reserved.</p>
-            <div class="mt-4 text-sm">
-                <a href="#" class="hover:text-gray-300">Terms of Service</a>
-                <span class="mx-2">|</span>
-                <a href="#" class="hover:text-gray-300">Privacy Policy</a>
-            </div>
-        </div>
-    </footer>
-
-    <!-- DEMO MODAL (Hidden by default) -->
-    <div id="onme-demo-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
-        <div class="bg-white text-gray-800 rounded-2xl shadow-xl p-6 w-full max-w-lg max-h-full overflow-y-auto relative">
-             <!-- All the widget HTML will be injected here by JavaScript -->
-        </div>
+  <!-- Hero Section -->
+  <section class="text-center py-20 md:py-32 px-4">
+    <div class="container mx-auto">
+      <h2 class="text-4xl md:text-6xl font-extrabold leading-tight">
+        Turn Shoppers into <br class="hidden md:block" />
+        <span class="gradient-text">Your Best Marketers</span>
+      </h2>
+      <p class="text-lg md:text-xl text-gray-400 mt-6 max-w-2xl mx-auto">
+        OnMe is the AI virtual try-on that doesn't just increase conversions. It empowers your customers to create and share unique, branded content, driving organic growth.
+      </p>
+      <a href="https://app.onme.fit" class="cta-button text-white font-bold py-4 px-8 rounded-full inline-block mt-10 text-lg">Get Started For Free</a>
     </div>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const launchButton = document.getElementById('launch-demo-button');
-            const demoModal = document.getElementById('onme-demo-modal');
-            const modalContent = demoModal.querySelector('div');
-            const API_URL = `/api/generate-tryon`;
-            const SCENES = ['https://images.pexels.com/photos/1638324/pexels-photo-1638324.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2', 'https://images.pexels.com/photos/3769138/pexels-photo-3769138.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2', 'https://images.pexels.com/photos/21014/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2', 'https://images.pexels.com/photos/247929/pexels-photo-247929.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2', 'https://images.pexels.com/photos/931007/pexels-photo-931007.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'];
-            const STICKERS = ['https://www.svgrepo.com/show/509939/sparkle.svg', 'https://www.svgrepo.com/show/521692/flower.svg', 'https://www.svgrepo.com/show/530438/camera.svg', 'https://www.svgrepo.com/show/508930/fire.svg', 'https://www.svgrepo.com/show/493540/heart-love.svg', 'https://www.svgrepo.com/show/521876/planet.svg'];
-            const clothingImageBase64 = "/9j/4AAQSkZJRgABAQEASABIAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIbGNtcwIQAABtbnRyUkdCIFhZWiAH4gADABQACQAOAB1hY3NwTVNGVAAAAABzYXdzY3RyeWVsdW5ndmVya2VGN///wAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLWxjbXMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAApkZXNjAAAA/AAAAHxjcHJ0AAABcAAAACh3dHB0AAABoAAAABRia3B0AAABsAAAABRyWFlaAAABxAAAAA5nWFlaAAAB2AAAAA5iWFlaAAAB7AAAAA5yVFJDAAACEAAAACBnVFJDAAACEAAAACBiVFJDAAACEAAAACBjaGFkAAACJAAAACxiVFJDAAACEAAAACBtZXRhAAEAAAABAAYAAQACAAIAAgABYWNzcEFQUEwAAAAAbnVuZAAAAAAAAAAAAAAAAAAAAAD21gABAAAAANMtAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAPbWAAEAAAAA0y1//8AAEQgA3QDUAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjMLwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/aAAwDAQACEQMRAD8A9UooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA...
-            let personImageBase64 = null;
+  </section>
 
-            function openModal() {
-                modalContent.innerHTML = getWidgetHTML();
-                demoModal.classList.remove('hidden');
-                demoModal.classList.add('flex');
-                attachWidgetListeners();
-            }
+  <!-- Interactive Demo Section -->
+  <section class="px-4">
+    <div class="container mx-auto">
+      <div class="bg-gray-800 border border-gray-700 rounded-2xl p-8 md:p-12">
+        <div class="text-center mb-8">
+          <h3 class="text-3xl font-bold">Experience OnMe Live</h3>
+          <p class="text-gray-400 mt-2">Click the button below to see how the widget works.</p>
+        </div>
+        <div class="max-w-4xl mx-auto grid md:grid-cols-2 gap-8 items-center bg-gray-900 p-8 rounded-lg">
+          <div>
+            <img id="product-image-for-tryon" src="https://images.pexels.com/photos/1858488/pexels-photo-1858488.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="Stylish jacket" class="rounded-lg shadow-2xl w-full aspect-[4/5] object-cover" />
+          </div>
+          <div class="text-center md:text-left">
+            <h4 class="text-2xl font-bold">Premium Leather Jacket</h4>
+            <p class="text-3xl font-light my-2">$299.00</p>
+            <p class="text-gray-400 text-sm mb-6">A timeless jacket crafted from genuine leather. Perfect for any occasion.</p>
+            <button id="launch-demo-button" class="cta-button text-white font-semibold py-3 px-6 rounded-lg w-full md:w-auto">✨ Virtually Try On with OnMe</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-            function closeModal() {
-                demoModal.classList.add('hidden');
-                demoModal.classList.remove('flex');
-                modalContent.innerHTML = '';
-            }
+  <!-- How It Works Section -->
+  <section class="py-20 md:py-28 px-4">
+    <div class="container mx-auto text-center">
+      <h3 class="text-3xl md:text-4xl font-bold mb-12">Effortless for You, Magical for Them.</h3>
+      <div class="grid md:grid-cols-3 gap-8 md:gap-12">
+        <div class="text-center">
+          <div class="text-5xl mb-4">1.</div>
+          <h4 class="text-xl font-semibold mb-2">Instant Try-On</h4>
+          <p class="text-gray-400">Shoppers upload a photo and instantly see your products on themselves, boosting confidence and reducing returns.</p>
+        </div>
+        <div class="text-center">
+          <div class="text-5xl mb-4">2.</div>
+          <h4 class="text-xl font-semibold mb-2">Unleash Creativity</h4>
+          <p class="text-gray-400">Our Vibe Studio lets customers style their new look with unique backgrounds, stickers, and frames.</p>
+        </div>
+        <div class="text-center">
+          <div class="text-5xl mb-4">3.</div>
+          <h4 class="text-xl font-semibold mb-2">Drive Organic Shares</h4>
+          <p class="text-gray-400">Users download their creation and share it to TikTok and Instagram, creating powerful user-generated content for your brand.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-            function getWidgetHTML() {
-                return `
-                    <button id="onme-modal-close-button" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-3xl z-10">&times;</button>
-                    <div id="main-widget-view">
-                        <h3 class="text-xl font-bold text-center mb-1">Virtual Try-On</h3>
-                        <p class="text-sm text-gray-500 text-center mb-4">Upload your photo to see this on you!</p>
-                        <div class="text-center mb-4">
-                             <img id="onme-person-preview" src="https://placehold.co/300x400/EFEFEF/333333?text=Your+Photo" alt="User photo preview" class="w-full max-w-[200px] mx-auto aspect-[3/4] object-cover rounded-lg bg-gray-100 shadow-inner">
-                             <label for="onme-person-upload" id="onme-upload-label" class="cursor-pointer text-sm font-semibold text-indigo-600 hover:text-indigo-800 mt-2 inline-block">Upload Your Photo</label>
-                             <input type="file" id="onme-person-upload" class="hidden" accept="image/*">
-                        </div>
-                         <div class="text-xs text-gray-500 text-center my-2 px-4">
-                            <input type="checkbox" id="age-confirm" class="mr-1">
-                            <label for="age-confirm">I confirm I am 18 or older and agree to the <a href="#" class="underline">Terms of Service</a>.</label>
-                         </div>
-                        <div class="flex flex-col items-center">
-                            <button id="onme-generate-button" class="w-full text-center bg-indigo-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm disabled:bg-indigo-300" disabled>Generate Try-On</button>
-                            <div id="onme-loading-spinner" class="spinner w-8 h-8 rounded-full border-4 border-gray-300 hidden my-2"></div>
-                             <p id="onme-message" class="text-xs text-gray-500 mt-2 h-auto text-center"></p>
-                        </div>
-                    </div>
-                    <div id="vibe-studio-view" class="hidden"></div>
-                `;
-            }
+  <!-- Features Section -->
+  <section class="py-20 md:py-28 px-4 bg-gray-900">
+    <div class="container mx-auto">
+      <div class="text-center">
+        <h3 class="text-3xl md:text-4xl font-bold mb-12">More Than a Widget. It's a Growth Engine.</h3>
+      </div>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="feature-card p-6 rounded-lg">
+          <h4 class="text-lg font-semibold">One-Click Setup</h4>
+          <p class="text-gray-400 mt-2">Integrate seamlessly with our official Shopify and WordPress apps. No coding required.</p>
+        </div>
+        <div class="feature-card p-6 rounded-lg">
+          <h4 class="text-lg font-semibold">Brand-Ready Customization</h4>
+          <p class="text-gray-400 mt-2">Automatically detect your site's style or use our simple tools to match your brand's colors, fonts, and feel.</p>
+        </div>
+        <div class="feature-card p-6 rounded-lg">
+          <h4 class="text-lg font-semibold">Actionable Analytics</h4>
+          <p class="text-gray-400 mt-2">Track try-ons and engagement directly from your dashboard to see your ROI in real-time.</p>
+        </div>
+        <div class="feature-card p-6 rounded-lg">
+          <h4 class="text-lg font-semibold">Blazing Fast AI</h4>
+          <p class="text-gray-400 mt-2">Our optimized AI pipeline delivers high-quality try-ons in seconds, keeping your customers engaged.</p>
+        </div>
+        <div class="feature-card p-6 rounded-lg">
+          <h4 class="text-lg font-semibold">Secure & Private</h4>
+          <p class="text-gray-400 mt-2">We process images ephemerally and never store user photos, ensuring complete privacy and trust.</p>
+        </div>
+        <div class="feature-card p-6 rounded-lg">
+          <h4 class="text-lg font-semibold">Guided AI for Perfect Results</h4>
+          <p class="text-gray-400 mt-2">We intelligently guide your customers to provide the best photos, ensuring high-quality, realistic results every time.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-            function getVibeStudioHTML() {
-                 return `
-                    <div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold">Vibe Studio</h2></div>
-                    <div id="onme-modal-result-container" class="relative w-full max-w-sm mx-auto aspect-[3/4] bg-gray-200 rounded-xl overflow-hidden shadow-inner flex items-center justify-center bg-cover bg-center">
-                        <img id="onme-modal-result-image" alt="Generated image" class="absolute inset-0 w-full h-full object-contain">
-                        <div id="onme-modal-sticker-container" class="absolute inset-0 w-full h-full"></div>
-                    </div>
-                    <div class="flex justify-center border-b my-4">
-                        <button data-tab="scenes" class="vibe-tab active flex-1 py-2 font-semibold border-b-2">Scenes</button>
-                        <button data-tab="stickers" class="vibe-tab flex-1 py-2 font-semibold border-b-2 border-transparent">Stickers</button>
-                        <button data-tab="frames" class="vibe-tab flex-1 py-2 font-semibold border-b-2 border-transparent">Frames</button>
-                    </div>
-                    <div id="onme-scenes-panel" class="vibe-panel grid grid-cols-5 gap-2"></div>
-                    <div id="onme-stickers-panel" class="vibe-panel hidden grid grid-cols-6 gap-2"></div>
-                    <div id="onme-frames-panel" class="vibe-panel hidden grid grid-cols-5 gap-2"></div>
-                    <div class="text-center mt-6"><button id="onme-modal-download-button" class="cta-button text-white font-bold py-3 px-8 rounded-full hover:bg-indigo-700 text-lg shadow-lg">Download</button></div>
-                `;
-            }
-            
-            function attachWidgetListeners() {
-                const ageConfirmCheckbox = document.getElementById('age-confirm');
-                const generateButton = document.getElementById('onme-generate-button');
-                
-                document.getElementById('onme-modal-close-button').onclick = closeModal;
-                demoModal.onclick = (e) => { if (e.target === demoModal) closeModal(); };
-                
-                ageConfirmCheckbox.onchange = () => {
-                    generateButton.disabled = !ageConfirmCheckbox.checked || !personImageBase64;
-                };
+  <!-- Trust & Safety Section -->
+  <section class="py-20 md:py-28 px-4">
+    <div class="container mx-auto">
+      <div class="text-center">
+        <h3 class="text-3xl md:text-4xl font-bold mb-12">Built on Trust & Safety</h3>
+      </div>
+      <div class="grid md:grid-cols-2 gap-8 md:gap-16 max-w-4xl mx-auto">
+        <div class="flex flex-col items-center text-center">
+          <div class="trust-icon mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+          </div>
+          <h4 class="text-xl font-semibold mb-2">Our Privacy Promise</h4>
+          <p class="text-gray-400">User photos are processed ephemerally and are never stored. We cannot see them, and they are permanently deleted the moment a try-on is generated. Your customers' privacy is absolute.</p>
+        </div>
+        <div class="flex flex-col items-center text-center">
+          <div class="trust-icon mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
+          </div>
+          <h4 class="text-xl font-semibold mb-2">Commitment to Safety</h4>
+          <p class="text-gray-400">OnMe is a service for users 18 and older. We enforce this with a clear age-gate in our widget and strict Terms of Service to ensure a safe and responsible experience for everyone.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-                document.getElementById('onme-person-upload').onchange = async (event) => {
-                    const file = event.target.files[0];
-                    if (!file) return;
-                    document.getElementById('onme-person-preview').src = URL.createObjectURL(file);
-                    document.getElementById('onme-upload-label').textContent = 'Change Photo';
-                    personImageBase64 = await fileToBase64(file);
-                    generateButton.disabled = !ageConfirmCheckbox.checked;
-                };
+  <!-- Pricing Section -->
+  <section id="pricing" class="py-20 md:py-28 px-4 bg-gray-900">
+    <div class="container mx-auto">
+      <div class="text-center">
+        <h3 class="text-3xl md:text-4xl font-bold mb-12">Choose Your Plan</h3>
+      </div>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto items-start">
+        <!-- Core Plan -->
+        <div class="feature-card w-full p-8 rounded-lg flex flex-col h-full">
+          <h4 class="text-xl font-semibold">OnMe Core</h4>
+          <p class="text-4xl font-bold my-4">$19<span class="text-base font-medium text-gray-400">/mo</span></p>
+          <ul class="space-y-3 text-gray-300 mb-6 flex-grow">
+            <li><span class="text-purple-400 mr-2">✓</span>Basic Try-On Widget</li>
+            <li><span class="text-purple-400 mr-2">✓</span>Up to 1,000 try-ons/mo</li>
+          </ul>
+          <a href="https://app.onme.fit" class="w-full mt-auto block text-center bg-gray-600 text-white font-semibold py-3 px-4 rounded-md hover:bg-gray-700 transition-colors">Choose Core</a>
+        </div>
+        <!-- Vibe Plan -->
+        <div class="w-full p-8 rounded-lg border-2 border-purple-500 relative flex flex-col h-full" style="box-shadow: 0 0 30px rgba(168, 85, 247, 0.3);">
+          <div class="absolute top-0 -translate-y-1/2 bg-purple-500 text-white text-xs font-bold px-3 py-1 rounded-full">MOST POPULAR</div>
+          <h4 class="text-xl font-semibold">OnMe Vibe</h4>
+          <p class="text-4xl font-bold my-4">$49<span class="text-base font-medium text-gray-400">/mo</span></p>
+          <ul class="space-y-3 text-gray-300 mb-6 flex-grow">
+            <li><span class="text-purple-400 mr-2">✓</span>Everything in Core, plus:</li>
+            <li><span class="text-purple-400 mr-2">✓</span>The Vibe Studio</li>
+            <li><span class="text-purple-400 mr-2">✓</span>Unlimited try-ons</li>
+          </ul>
+          <a href="https://app.onme.fit" class="cta-button w-full mt-auto block text-center text-white font-semibold py-3 px-4 rounded-md">Choose Vibe</a>
+        </div>
+        <!-- Enterprise Plan -->
+        <div class="feature-card w-full p-8 rounded-lg flex flex-col h-full">
+          <h4 class="text-xl font-semibold">Enterprise</h4>
+          <p class="text-4xl font-bold my-4">Custom</p>
+          <ul class="space-y-3 text-gray-300 mb-6 flex-grow">
+            <li><span class="text-purple-400 mr-2">✓</span>Everything in Vibe, plus:</li>
+            <li><span class="text-purple-400 mr-2">✓</span>Dedicated Support & Onboarding</li>
+            <li><span class="text-purple-400 mr-2">✓</span>Custom Integrations</li>
+            <li><span class="text-purple-400 mr-2">✓</span>API Access</li>
+          </ul>
+          <a href="mailto:sales@onme.fit" class="w-full mt-auto block text-center border-2 border-gray-500 text-white font-semibold py-3 px-4 rounded-md hover:bg-gray-700 hover:border-gray-700 transition-colors">Contact Sales</a>
+        </div>
+      </div>
+    </div>
+  </section>
 
-                generateButton.onclick = handleGeneration;
-            }
+  <!-- Footer -->
+  <footer class="border-t border-gray-800 mt-20">
+    <div class="container mx-auto py-8 px-4 text-center text-gray-500">
+      <p>&copy; 2025 OnMe. All rights reserved.</p>
+      <div class="mt-4 text-sm">
+        <a href="#" class="hover:text-gray-300">Terms of Service</a>
+        <span class="mx-2">|</span>
+        <a href="#" class="hover:text-gray-300">Privacy Policy</a>
+      </div>
+    </div>
+  </footer>
 
-            async function handleGeneration() {
-                updateUIState(true, 'Generating your try-on...');
-                
-                const prompt = `Take the person from the first image and put the clothing item from the second image on them. The person should be wearing the clothes. Ensure the final generated image of the person has a transparent background (alpha channel), making it a clean cutout. The person's original background should be completely removed.`;
-                const payload = {
-                    contents: [{
-                        parts: [
-                            { text: prompt },
-                            { inlineData: { mimeType: "image/jpeg", data: personImageBase64 } },
-                            { inlineData: { mimeType: "image/jpeg", data: clothingImageBase64 } }
-                        ]
-                    }],
-                };
-                
-                try {
-                    const response = await fetch(API_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
+  <!-- DEMO MODAL (Hidden by default) -->
+  <div id="onme-demo-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white text-gray-800 rounded-2xl shadow-xl p-6 w-full max-w-lg max-h-full overflow-y-auto relative">
+      <!-- All the widget HTML will be injected here by JavaScript -->
+    </div>
+  </div>
 
-                    if (!response.ok) {
-                        const errorBody = await response.json();
-                        throw new Error(`API Error (${response.status}): ${errorBody?.error?.message || 'Unknown error'}`);
-                    }
-                    
-                    const result = await response.json();
-                    const candidate = result?.candidates?.[0];
-                    const base64Data = candidate?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const launchButton = document.getElementById('launch-demo-button');
+      const demoModal = document.getElementById('onme-demo-modal');
+      const modalContent = demoModal.querySelector('div');
+      const API_URL = \`/api/generate-tryon\`;
+      const SCENES = [
+        'https://images.pexels.com/photos/1638324/pexels-photo-1638324.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+        'https://images.pexels.com/photos/3769138/pexels-photo-3769138.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+        'https://images.pexels.com/photos/21014/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+        'https://images.pexels.com/photos/247929/pexels-photo-247929.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+        'https://images.pexels.com/photos/931007/pexels-photo-931007.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'
+      ];
+      const STICKERS = [
+        'https://www.svgrepo.com/show/509939/sparkle.svg',
+        'https://www.svgrepo.com/show/521692/flower.svg',
+        'https://www.svgrepo.com/show/530438/camera.svg',
+        'https://www.svgrepo.com/show/508930/fire.svg',
+        'https://www.svgrepo.com/show/493540/heart-love.svg',
+        'https://www.svgrepo.com/show/521876/planet.svg'
+      ];
 
-                    if (!base64Data) throw new Error('No image data in API response.');
-                    
-                    const imageUrl = `data:image/png;base64,${base64Data}`;
-                    showVibeStudio(imageUrl);
+      // === Paste your full base64 (jpeg or png) for the clothing image BETWEEN the backticks below ===
+      const clothingImageBase64 = `PASTE_YOUR_FULL_BASE64_STRING_HERE`;
+      let personImageBase64 = null;
 
-                } catch (error) {
-                    console.error("API Error:", error);
-                    updateUIState(false, `Error: ${error.message}`);
-                }
-            }
-            
-            function showVibeStudio(imageUrl) {
-                document.getElementById('main-widget-view').classList.add('hidden');
-                const vibeView = document.getElementById('vibe-studio-view');
-                vibeView.innerHTML = getVibeStudioHTML();
-                vibeView.classList.remove('hidden');
-                document.getElementById('onme-modal-result-image').src = imageUrl;
-                attachVibeStudioListeners();
-            }
+      function openModal() {
+        modalContent.innerHTML = getWidgetHTML();
+        demoModal.classList.remove('hidden');
+        demoModal.classList.add('flex');
+        attachWidgetListeners();
+      }
 
-            function attachVibeStudioListeners() {
-                const modalResultContainer = document.getElementById('onme-modal-result-container');
-                const stickerContainer = document.getElementById('onme-modal-sticker-container');
-                const scenesPanel = document.getElementById('onme-scenes-panel');
-                const stickersPanel = document.getElementById('onme-stickers-panel');
-                const framesPanel = document.getElementById('onme-frames-panel');
-                const downloadButton = document.getElementById('onme-modal-download-button');
+      function closeModal() {
+        demoModal.classList.add('hidden');
+        demoModal.classList.remove('flex');
+        modalContent.innerHTML = '';
+      }
 
-                scenesPanel.innerHTML = SCENES.map(url => `<img src="${url}" class="w-full h-16 object-cover rounded cursor-pointer hover:opacity-75">`).join('');
-                stickersPanel.innerHTML = STICKERS.map(url => `<img src="${url}" class="w-full h-12 object-contain p-1 rounded cursor-pointer hover:bg-gray-200">`).join('');
-                framesPanel.innerHTML = ['None', 'Polaroid', 'Neon', 'Film'].map(name => `<div class="text-center p-2 border-2 rounded cursor-pointer hover:bg-gray-100">${name}</div>`).join('');
-            
-                document.querySelectorAll('.vibe-tab').forEach(tab => {
-                    tab.onclick = () => {
-                        document.querySelectorAll('.vibe-tab').forEach(t => t.classList.remove('active'));
-                        document.querySelectorAll('.vibe-panel').forEach(p => p.classList.add('hidden'));
-                        tab.classList.add('active');
-                        document.getElementById(`onme-${tab.dataset.tab}-panel`).classList.remove('hidden');
-                    };
-                });
-            
-                scenesPanel.onclick = (e) => {
-                    if (e.target.tagName === 'IMG') modalResultContainer.style.backgroundImage = `url(${e.target.src})`;
-                };
-            
-                stickersPanel.onclick = (e) => {
-                    if (e.target.tagName !== 'IMG') return;
-                    const sticker = document.createElement('img');
-                    sticker.src = e.target.src;
-                    sticker.className = 'onme-sticker';
-                    sticker.style.left = '50%';
-                    sticker.style.top = '50%';
-                    stickerContainer.appendChild(sticker);
-                    sticker.onmousedown = handleStickerDrag;
-                };
+      function getWidgetHTML() {
+        return `
+          <button id=\"onme-modal-close-button\" class=\"absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-3xl z-10\">&times;</button>
+          <div id=\"main-widget-view\">
+            <h3 class=\"text-xl font-bold text-center mb-1\">Virtual Try-On</h3>
+            <p class=\"text-sm text-gray-500 text-center mb-4\">Upload your photo to see this on you!</p>
+            <div class=\"text-center mb-4\">
+              <img id=\"onme-person-preview\" src=\"https://placehold.co/300x400/EFEFEF/333333?text=Your+Photo\" alt=\"User photo preview\" class=\"w-full max-w-[200px] mx-auto aspect-[3/4] object-cover rounded-lg bg-gray-100 shadow-inner\">
+              <label for=\"onme-person-upload\" id=\"onme-upload-label\" class=\"cursor-pointer text-sm font-semibold text-indigo-600 hover:text-indigo-800 mt-2 inline-block\">Upload Your Photo</label>
+              <input type=\"file\" id=\"onme-person-upload\" class=\"hidden\" accept=\"image/*\">
+            </div>
+            <div class=\"text-xs text-gray-500 text-center my-2 px-4\">
+              <input type=\"checkbox\" id=\"age-confirm\" class=\"mr-1\">
+              <label for=\"age-confirm\">I confirm I am 18 or older and agree to the <a href=\"#\" class=\"underline\">Terms of Service</a>.</label>
+            </div>
+            <div class=\"flex flex-col items-center\">
+              <button id=\"onme-generate-button\" class=\"w-full text-center bg-indigo-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm disabled:bg-indigo-300\" disabled>Generate Try-On</button>
+              <div id=\"onme-loading-spinner\" class=\"spinner w-8 h-8 rounded-full border-4 border-gray-300 hidden my-2\"></div>
+              <p id=\"onme-message\" class=\"text-xs text-gray-500 mt-2 h-auto text-center\"></p>
+            </div>
+          </div>
+          <div id=\"vibe-studio-view\" class=\"hidden\"></div>
+        `;
+      }
 
-                framesPanel.onclick = (e) => {
-                    modalResultContainer.className = modalResultContainer.className.replace(/onme-frame-\w+/g, '');
-                    const frameName = e.target.innerText.toLowerCase();
-                    if (frameName !== 'none') modalResultContainer.classList.add(`onme-frame-${frameName}`);
-                };
+      function getVibeStudioHTML() {
+        return `
+          <div class=\"flex justify-between items-center mb-4\"><h2 class=\"text-2xl font-bold\">Vibe Studio</h2></div>
+          <div id=\"onme-modal-result-container\" class=\"relative w-full max-w-sm mx-auto aspect-[3/4] bg-gray-200 rounded-xl overflow-hidden shadow-inner flex items-center justify-center bg-cover bg-center\">
+            <img id=\"onme-modal-result-image\" alt=\"Generated image\" class=\"absolute inset-0 w-full h-full object-contain\">
+            <div id=\"onme-modal-sticker-container\" class=\"absolute inset-0 w-full h-full\"></div>
+          </div>
+          <div class=\"flex justify-center border-b my-4\">
+            <button data-tab=\"scenes\" class=\"vibe-tab active flex-1 py-2 font-semibold border-b-2\">Scenes</button>
+            <button data-tab=\"stickers\" class=\"vibe-tab flex-1 py-2 font-semibold border-b-2 border-transparent\">Stickers</button>
+            <button data-tab=\"frames\" class=\"vibe-tab flex-1 py-2 font-semibold border-b-2 border-transparent\">Frames</button>
+          </div>
+          <div id=\"onme-scenes-panel\" class=\"vibe-panel grid grid-cols-5 gap-2\"></div>
+          <div id=\"onme-stickers-panel\" class=\"vibe-panel hidden grid grid-cols-6 gap-2\"></div>
+          <div id=\"onme-frames-panel\" class=\"vibe-panel hidden grid grid-cols-5 gap-2\"></div>
+          <div class=\"text-center mt-6\"><button id=\"onme-modal-download-button\" class=\"cta-button text-white font-bold py-3 px-8 rounded-full hover:bg-indigo-700 text-lg shadow-lg\">Download</button></div>
+        `;
+      }
 
-                downloadButton.onclick = () => {
-                    html2canvas(modalResultContainer, { allowTaint: true, useCORS: true }).then(canvas => {
-                        const link = document.createElement('a');
-                        link.download = 'onme-vibe.png';
-                        link.href = canvas.toDataURL();
-                        link.click();
-                    });
-                };
-            }
+      function attachWidgetListeners() {
+        const ageConfirmCheckbox = document.getElementById('age-confirm');
+        const generateButton = document.getElementById('onme-generate-button');
 
-            const fileToBase64 = file => new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => resolve(reader.result.split(',')[1]);
-                reader.onerror = error => reject(error);
-            });
-            
-            const updateUIState = (isLoading = false, message = '') => {
-                document.getElementById('onme-loading-spinner').classList.toggle('hidden', !isLoading);
-                document.getElementById('onme-generate-button').classList.toggle('hidden', isLoading);
-                document.getElementById('onme-message').textContent = message;
-            };
+        document.getElementById('onme-modal-close-button').onclick = closeModal;
+        demoModal.onclick = (e) => { if (e.target === demoModal) closeModal(); };
 
-            const handleStickerDrag = (e) => {
-                const sticker = e.target;
-                sticker.classList.add('dragging');
-                let offsetX = e.clientX - sticker.getBoundingClientRect().left;
-                let offsetY = e.clientY - sticker.getBoundingClientRect().top;
-                function moveAt(pageX, pageY) {
-                    sticker.style.left = pageX - sticker.parentElement.getBoundingClientRect().left - offsetX + 'px';
-                    sticker.style.top = pageY - sticker.parentElement.getBoundingClientRect().top - offsetY + 'px';
-                }
-                function onMouseMove(event) { moveAt(event.pageX, event.pageY); }
-                document.addEventListener('mousemove', onMouseMove);
-                sticker.onmouseup = () => {
-                    document.removeEventListener('mousemove', onMouseMove);
-                    sticker.onmouseup = null;
-                    sticker.classList.remove('dragging');
-                };
-                sticker.ondragstart = () => false;
-            };
-            
-            launchButton.addEventListener('click', openModal);
+        ageConfirmCheckbox.onchange = () => {
+          generateButton.disabled = !ageConfirmCheckbox.checked || !personImageBase64;
+        };
+
+        document.getElementById('onme-person-upload').onchange = async (event) => {
+          const file = event.target.files[0];
+          if (!file) return;
+          document.getElementById('onme-person-preview').src = URL.createObjectURL(file);
+          document.getElementById('onme-upload-label').textContent = 'Change Photo';
+          personImageBase64 = await fileToBase64(file);
+          generateButton.disabled = !ageConfirmCheckbox.checked;
+        };
+
+        generateButton.onclick = handleGeneration;
+      }
+
+      async function handleGeneration() {
+        updateUIState(true, 'Generating your try-on...');
+
+        try {
+          const prompt = `Take the person from the first image and put the clothing item from the second image on them. The person should be wearing the clothes. Ensure the final generated image of the person has a transparent background (alpha channel), making it a clean cutout. The person's original background should be completely removed.`;
+
+          // Use pasted base64 if present; otherwise, fetch and convert the product image URL to base64 as a fallback
+          const productImg = document.getElementById('product-image-for-tryon');
+          const clothingB64 = (clothingImageBase64 && clothingImageBase64.trim().length > 0)
+            ? clothingImageBase64.trim()
+            : await getImageBase64FromURL(productImg.src);
+
+          const payload = {
+            contents: [{
+              parts: [
+                { text: prompt },
+                { inlineData: { mimeType: 'image/jpeg', data: personImageBase64 } },
+                { inlineData: { mimeType: 'image/jpeg', data: clothingB64 } }
+              ]
+            }]
+          };
+
+          const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          if (!response.ok) {
+            const errorBody = await response.json().catch(() => ({}));
+            throw new Error(`API Error (${response.status}): ${errorBody?.error?.message || 'Unknown error'}`);
+          }
+
+          const result = await response.json();
+          const candidate = result?.candidates?.[0];
+          const base64Data = candidate?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+
+          if (!base64Data) throw new Error('No image data in API response.');
+
+          const imageUrl = `data:image/png;base64,${base64Data}`;
+          showVibeStudio(imageUrl);
+
+        } catch (error) {
+          console.error('API Error:', error);
+          updateUIState(false, `Error: ${error.message}`);
+        }
+      }
+
+      function showVibeStudio(imageUrl) {
+        document.getElementById('main-widget-view').classList.add('hidden');
+        const vibeView = document.getElementById('vibe-studio-view');
+        vibeView.innerHTML = getVibeStudioHTML();
+        vibeView.classList.remove('hidden');
+        document.getElementById('onme-modal-result-image').src = imageUrl;
+        attachVibeStudioListeners();
+      }
+
+      function attachVibeStudioListeners() {
+        const modalResultContainer = document.getElementById('onme-modal-result-container');
+        const stickerContainer = document.getElementById('onme-modal-sticker-container');
+        const scenesPanel = document.getElementById('onme-scenes-panel');
+        const stickersPanel = document.getElementById('onme-stickers-panel');
+        const framesPanel = document.getElementById('onme-frames-panel');
+        const downloadButton = document.getElementById('onme-modal-download-button');
+
+        scenesPanel.innerHTML = SCENES.map(url => `<img src="${url}" class="w-full h-16 object-cover rounded cursor-pointer hover:opacity-75">`).join('');
+        stickersPanel.innerHTML = STICKERS.map(url => `<img src="${url}" class="w-full h-12 object-contain p-1 rounded cursor-pointer hover:bg-gray-200">`).join('');
+        framesPanel.innerHTML = ['None', 'Polaroid', 'Neon', 'Film'].map(name => `<div class="text-center p-2 border-2 rounded cursor-pointer hover:bg-gray-100">${name}</div>`).join('');
+
+        document.querySelectorAll('.vibe-tab').forEach(tab => {
+          tab.onclick = () => {
+            document.querySelectorAll('.vibe-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.vibe-panel').forEach(p => p.classList.add('hidden'));
+            tab.classList.add('active');
+            document.getElementById(`onme-${tab.dataset.tab}-panel`).classList.remove('hidden');
+          };
         });
-    </script>
+
+        scenesPanel.onclick = (e) => {
+          if (e.target.tagName === 'IMG') modalResultContainer.style.backgroundImage = `url(${e.target.src})`;
+        };
+
+        stickersPanel.onclick = (e) => {
+          if (e.target.tagName !== 'IMG') return;
+          const sticker = document.createElement('img');
+          sticker.src = e.target.src;
+          sticker.className = 'onme-sticker';
+          sticker.style.left = '50%';
+          sticker.style.top = '50%';
+          stickerContainer.appendChild(sticker);
+          sticker.onmousedown = handleStickerDrag;
+        };
+
+        framesPanel.onclick = (e) => {
+          modalResultContainer.className = modalResultContainer.className.replace(/onme-frame-\w+/g, '');
+          const frameName = (e.target.innerText || '').toLowerCase();
+          if (frameName && frameName !== 'none') modalResultContainer.classList.add(`onme-frame-${frameName}`);
+        };
+
+        downloadButton.onclick = () => {
+          html2canvas(modalResultContainer, { allowTaint: true, useCORS: true }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = 'onme-vibe.png';
+            link.href = canvas.toDataURL();
+            link.click();
+          });
+        };
+      }
+
+      const fileToBase64 = file => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = error => reject(error);
+      });
+
+      async function getImageBase64FromURL(url) {
+        const res = await fetch(url, { mode: 'cors' });
+        if (!res.ok) throw new Error('Failed to fetch clothing image.');
+        const blob = await res.blob();
+        return new Promise((resolve, reject) => {
+          const r = new FileReader();
+          r.onload = () => resolve(r.result.split(',')[1]);
+          r.onerror = reject;
+          r.readAsDataURL(blob);
+        });
+      }
+
+      const updateUIState = (isLoading = false, message = '') => {
+        document.getElementById('onme-loading-spinner').classList.toggle('hidden', !isLoading);
+        document.getElementById('onme-generate-button').classList.toggle('hidden', isLoading);
+        document.getElementById('onme-message').textContent = message;
+      };
+
+      const handleStickerDrag = (e) => {
+        const sticker = e.target;
+        sticker.classList.add('dragging');
+        let offsetX = e.clientX - sticker.getBoundingClientRect().left;
+        let offsetY = e.clientY - sticker.getBoundingClientRect().top;
+        function moveAt(pageX, pageY) {
+          sticker.style.left = pageX - sticker.parentElement.getBoundingClientRect().left - offsetX + 'px';
+          sticker.style.top = pageY - sticker.parentElement.getBoundingClientRect().top - offsetY + 'px';
+        }
+        function onMouseMove(event) { moveAt(event.pageX, event.pageY); }
+        document.addEventListener('mousemove', onMouseMove);
+        sticker.onmouseup = () => {
+          document.removeEventListener('mousemove', onMouseMove);
+          sticker.onmouseup = null;
+          sticker.classList.remove('dragging');
+        };
+        sticker.ondragstart = () => false;
+      };
+
+      launchButton.addEventListener('click', openModal);
+    });
+  </script>
 </body>
 </html>
