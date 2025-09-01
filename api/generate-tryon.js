@@ -1,65 +1,44 @@
 // api/generate-tryon.js
 
+import { client } from "@gradio/client";
+
 export default async function handler(request, response) {
   if (request.method !== 'POST') {
     return response.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  // Securely get your Hugging Face token and Endpoint URL
   const hfToken = process.env.HF_ACCESS_TOKEN;
-  const endpointUrl = process.env.HF_VTON_ENDPOINT_URL;
+  // NOTE: We use the base URL here, not the /run/predict path
+  const spaceUrl = "https://yisol-idm-vton.hf.space/"; 
 
-  if (!hfToken || !endpointUrl) {
-    return response.status(500).json({ error: 'API credentials not configured on the server.' });
+  if (!hfToken) {
+    return response.status(500).json({ error: 'API credentials not configured.' });
   }
 
   try {
     const { personImage, clothingImage } = request.body;
-
     if (!personImage || !clothingImage) {
-      return response.status(400).json({ error: 'Missing person or clothing image data.' });
+      return response.status(400).json({ error: 'Missing image data.' });
     }
+    
+    // Connect to the Hugging Face Space using the Gradio client
+    const app = await client(spaceUrl, { hf_token: hfToken });
 
-    // Gradio APIs expect the data to be in a "data" array.
-    // We also need to format the images as data URIs.
-    const payload = {
-      data: [
-        `data:image/jpeg;base64,${personImage}`,   // Human image
-        `data:image/jpeg;base64,${clothingImage}`, // Garment image
-        "both", // Mode
-        true,   // Use auto-generated mask
-        true    // Use auto-crop & resizing
-      ]
-    };
-
-    const apiResponse = await fetch(endpointUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${hfToken}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
+    // The client makes it easier to call the right function and format data
+    const result = await app.predict("/tryon", {
+      dict: `data:image/jpeg;base64,${personImage}`,      // Human image
+      garm_img: `data:image/jpeg;base64,${clothingImage}`,// Garment image
+      garment_des: "wearing a leather jacket", // Description
     });
-
-    if (!apiResponse.ok) {
-        const errorBody = await apiResponse.json();
-        console.error('Hugging Face API Error:', errorBody);
-        return response.status(apiResponse.status).json({ error: 'The AI model failed to process the request.' });
-    }
     
-    const result = await apiResponse.json();
-    
-    // The Gradio API returns its result in a "data" array as well.
-    // The generated image is usually the first item.
+    // The result data contains the generated image URI
     const base64Uri = result.data[0];
-
-    // Remove the "data:image/png;base64," prefix to get the raw Base64 data.
     const base64Image = base64Uri.split(',')[1];
     
     return response.status(200).json({ generatedImage: base64Image });
 
   } catch (error) {
-    console.error('OnMe VTON API Error:', error);
-    return response.status(500).json({ error: 'An internal server error occurred.' });
+    console.error('OnMe Gradio Client Error:', error);
+    return response.status(500).json({ error: 'An internal server error occurred while running the AI model.' });
   }
 }
