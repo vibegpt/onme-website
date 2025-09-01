@@ -159,146 +159,133 @@
             const demoModal = document.getElementById('onme-demo-modal');
             const modalContent = demoModal.querySelector('div');
             let personImageBase64 = null;
-            let clothingImageBase64 = null;
-
-            function openModal() {
-                modalContent.innerHTML = getWidgetHTML();
-                demoModal.classList.remove('hidden');
-                demoModal.classList.add('flex');
-                attachWidgetListeners();
-            }
-
-            function closeModal() {
-                demoModal.classList.add('hidden');
-                demoModal.classList.remove('flex');
-                modalContent.innerHTML = '';
-            }
-
-            function getWidgetHTML() {
-                return `
-                    <button id="onme-modal-close-button" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-3xl z-10">&times;</button>
-                    <div id="main-widget-view">
-                        <h3 class="text-xl font-bold text-center mb-1">Virtual Try-On</h3>
-                        <p class="text-sm text-gray-500 text-center mb-4">Upload your photo to see this on you!</p>
-                        <div class="text-center mb-4">
-                             <img id="onme-person-preview" src="https://placehold.co/300x400/EFEFEF/333333?text=Your+Photo" alt="User photo preview" class="w-full max-w-[200px] mx-auto aspect-[3/4] object-cover rounded-lg bg-gray-100 shadow-inner">
-                             <label for="onme-person-upload" id="onme-upload-label" class="cursor-pointer text-sm font-semibold text-indigo-600 hover:text-indigo-800 mt-2 inline-block">Upload Your Photo</label>
-                             <input type="file" id="onme-person-upload" class="hidden" accept="image/*">
-                        </div>
-                         <div class="text-xs text-gray-500 text-center my-2 px-4">
-                            <input type="checkbox" id="age-confirm" class="mr-1">
-                            <label for="age-confirm">I confirm I am 18 or older and agree to the <a href="#" class="underline">Terms of Service</a>.</label>
-                         </div>
-                        <div class="flex flex-col items-center">
-                            <button id="onme-generate-button" class="w-full text-center bg-indigo-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm disabled:bg-indigo-300" disabled>Generate Try-On</button>
-                            <div id="onme-loading-spinner" class="spinner w-8 h-8 rounded-full border-4 border-gray-300 hidden my-2"></div>
-                             <p id="onme-message" class="text-xs text-gray-500 mt-2 h-auto text-center"></p>
-                        </div>
-                    </div>
-                `;
-            }
-
-            async function attachWidgetListeners() {
-                const ageConfirmCheckbox = document.getElementById('age-confirm');
-                const generateButton = document.getElementById('onme-generate-button');
-                
-                document.getElementById('onme-modal-close-button').onclick = closeModal;
-                demoModal.onclick = (e) => { if (e.target === demoModal) closeModal(); };
-                
-                ageConfirmCheckbox.onchange = () => {
-                    generateButton.disabled = !ageConfirmCheckbox.checked || !personImageBase64;
-                };
-
-                document.getElementById('onme-person-upload').onchange = async (event) => {
-                    const file = event.target.files[0];
-                    if (!file) return;
-                    document.getElementById('onme-person-preview').src = URL.createObjectURL(file);
-                    document.getElementById('onme-upload-label').textContent = 'Change Photo';
-                    personImageBase64 = await fileToBase64(file);
-                    generateButton.disabled = !ageConfirmCheckbox.checked;
-                };
-
-                // Pre-fetch and convert the clothing image to Base64 when the page loads
-                const clothingImgElement = document.getElementById('product-image-for-tryon');
-                clothingImageBase64 = await urlToBase64(clothingImgElement.src);
-                
-                generateButton.onclick = handleGeneration;
-            }
-
-            async function handleGeneration() {
-                updateUIState(true, 'Generating your try-on...');
-                
-                try {
-                    // This is the relative path to your Vercel serverless function
-                    const API_URL = `/api/generate-tryon`;
-
-                    const response = await fetch(API_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            personImage: personImageBase64,
-                            clothingImage: clothingImageBase64
-                        }),
-                    });
-                    
-                    if (!response.ok) {
-                        const errorResult = await response.json();
-                        throw new Error(errorResult.error || 'The AI model failed to generate an image.');
-                    }
-
-                    const result = await response.json();
-                    const imageUrl = `data:image/jpeg;base64,${result.generatedImage}`;
-                    showResult(imageUrl);
-
-                } catch (error) {
-                    console.error("API Error:", error);
-                    updateUIState(false, `Error: ${error.message}`);
-                }
-            }
             
-            function showResult(imageUrl) {
-                updateUIState(false); // Hide spinner
-                modalContent.innerHTML = `
-                    <button id="onme-modal-close-button" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-3xl z-10">&times;</button>
-                    <h3 class="text-xl font-bold text-center mb-4">Here's Your Try-On!</h3>
-                    <img src="${imageUrl}" alt="Generated try-on image" class="w-full max-w-sm mx-auto aspect-[3/4] object-contain rounded-lg bg-gray-100">
-                    <div class="text-center mt-6">
-                        <a href="https://app.onme.fit" class="cta-button text-white font-bold py-3 px-8 rounded-full hover:bg-indigo-700 text-lg shadow-lg">Get OnMe for Your Store</a>
-                    </div>
-                `;
-                document.getElementById('onme-modal-close-button').onclick = closeModal;
-            }
+            // The leather jacket image is now included directly as a Base64 string.
+            const clothingImageBase64 = "/9j/4AAQSkZJRgABAQEASABIAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIbGNtcwIQAABtbnRyUkdCIFhZWiAH4gADABQACQAOAB1hY3NwTVNGVAAAAABzYXdzY3RyeWVsdW5ndmVya2VGN///wAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLWxjbXMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAApkZXNjAAAA/AAAAHxjcHJ0AAABcAAAACh3dHB0AAABoAAAABRia3B0AAABsAAAABRyWFlaAAABxAAAAA5nWFlaAAAB2AAAAA5iWFlaAAAB7AAAAA5yVFJDAAACEAAAACBnVFJDAAACEAAAACBiVFJDAAACEAAAACBjaGFkAAACJAAAACxiVFJDAAACEAAAACBtZXRhAAEAAAABAAYAAQACAAIAAgABYWNzcEFQUEwAAAAAbnVuZAAAAAAAAAAAAAAAAAAAAAD21gABAAAAANMtAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAPbWAAEAAAAA0y1//8AAEQgA3QDUAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjMLwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/aAAwDAQACEQMRAD8A9UooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA...`;
 
-            const fileToBase64 = file => new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => resolve(reader.result.split(',')[1]);
-                reader.onerror = error => reject(error);
-            });
+        function openModal() {
+            modalContent.innerHTML = getWidgetHTML();
+            demoModal.classList.remove('hidden');
+            demoModal.classList.add('flex');
+            attachWidgetListeners();
+        }
+
+        function closeModal() {
+            demoModal.classList.add('hidden');
+            demoModal.classList.remove('flex');
+            modalContent.innerHTML = '';
+        }
+
+        function getWidgetHTML() {
+            return `
+                <button id="onme-modal-close-button" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-3xl z-10">&times;</button>
+                <div id="main-widget-view">
+                    <h3 class="text-xl font-bold text-center mb-1">Virtual Try-On</h3>
+                    <p class="text-sm text-gray-500 text-center mb-4">Upload your photo to see this on you!</p>
+                    <div class="text-center mb-4">
+                            <img id="onme-person-preview" src="https://placehold.co/300x400/EFEFEF/333333?text=Your+Photo" alt="User photo preview" class="w-full max-w-[200px] mx-auto aspect-[3/4] object-cover rounded-lg bg-gray-100 shadow-inner">
+                            <label for="onme-person-upload" id="onme-upload-label" class="cursor-pointer text-sm font-semibold text-indigo-600 hover:text-indigo-800 mt-2 inline-block">Upload Your Photo</label>
+                            <input type="file" id="onme-person-upload" class="hidden" accept="image/*">
+                    </div>
+                        <div class="text-xs text-gray-500 text-center my-2 px-4">
+                        <input type="checkbox" id="age-confirm" class="mr-1">
+                        <label for="age-confirm">I confirm I am 18 or older and agree to the <a href="#" class="underline">Terms of Service</a>.</label>
+                        </div>
+                    <div class="flex flex-col items-center">
+                        <button id="onme-generate-button" class="w-full text-center bg-indigo-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm disabled:bg-indigo-300" disabled>Generate Try-On</button>
+                        <div id="onme-loading-spinner" class="spinner w-8 h-8 rounded-full border-4 border-gray-300 hidden my-2"></div>
+                            <p id="onme-message" class="text-xs text-gray-500 mt-2 h-auto text-center"></p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function attachWidgetListeners() {
+            const ageConfirmCheckbox = document.getElementById('age-confirm');
+            const generateButton = document.getElementById('onme-generate-button');
             
-            const urlToBase64 = async (url) => {
-                const response = await fetch(url);
-                const blob = await response.blob();
-                return new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => resolve(reader.result.split(',')[1]);
-                    reader.onerror = reject;
-                    reader.readAsDataURL(blob);
+            document.getElementById('onme-modal-close-button').onclick = closeModal;
+            demoModal.onclick = (e) => { if (e.target === demoModal) closeModal(); };
+            
+            ageConfirmCheckbox.onchange = () => {
+                generateButton.disabled = !ageConfirmCheckbox.checked || !personImageBase64;
+            };
+
+            document.getElementById('onme-person-upload').onchange = async (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+                document.getElementById('onme-person-preview').src = URL.createObjectURL(file);
+                document.getElementById('onme-upload-label').textContent = 'Change Photo';
+                personImageBase64 = await fileToBase64(file);
+                generateButton.disabled = !ageConfirmCheckbox.checked;
+            };
+
+            generateButton.onclick = handleGeneration;
+        }
+
+        async function handleGeneration() {
+            updateUIState(true, 'Generating your try-on...');
+            
+            try {
+                const API_URL = `/api/generate-tryon`;
+
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        personImage: personImageBase64,
+                        clothingImage: clothingImageBase64
+                    }),
                 });
-            };
-            
-            const updateUIState = (isLoading = false, message = '') => {
-                const spinner = document.getElementById('onme-loading-spinner');
-                const button = document.getElementById('onme-generate-button');
-                const msgElement = document.getElementById('onme-message');
                 
-                if (spinner) spinner.classList.toggle('hidden', !isLoading);
-                if (button) button.classList.toggle('hidden', isLoading);
-                if (msgElement) msgElement.textContent = message;
-            };
-            
-            launchButton.addEventListener('click', openModal);
+                if (!response.ok) {
+                    const errorResult = await response.json();
+                    throw new Error(errorResult.error || 'The AI model failed to generate an image.');
+                }
+
+                const result = await response.json();
+                const imageUrl = `data:image/jpeg;base64,${result.generatedImage}`;
+                showResult(imageUrl);
+
+            } catch (error) {
+                console.error("API Error:", error);
+                updateUIState(false, `Error: ${error.message}`);
+            }
+        }
+        
+        function showResult(imageUrl) {
+            updateUIState(false);
+            modalContent.innerHTML = `
+                <button id="onme-modal-close-button" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-3xl z-10">&times;</button>
+                <h3 class="text-xl font-bold text-center mb-4">Here's Your Try-On!</h3>
+                <img src="${imageUrl}" alt="Generated try-on image" class="w-full max-w-sm mx-auto aspect-[3/4] object-contain rounded-lg bg-gray-100">
+                <div class="text-center mt-6">
+                    <a href="https://app.onme.fit" class="cta-button text-white font-bold py-3 px-8 rounded-full hover:bg-indigo-700 text-lg shadow-lg">Get OnMe for Your Store</a>
+                </div>
+            `;
+            document.getElementById('onme-modal-close-button').onclick = closeModal;
+        }
+
+        const fileToBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = error => reject(error);
         });
-    </script>
+        
+        const updateUIState = (isLoading = false, message = '') => {
+            const spinner = document.getElementById('onme-loading-spinner');
+            const button = document.getElementById('onme-generate-button');
+            const msgElement = document.getElementById('onme-message');
+            
+            if (spinner) spinner.classList.toggle('hidden', !isLoading);
+            if (button) button.classList.toggle('hidden', isLoading);
+            if (msgElement) msgElement.textContent = message;
+        };
+        
+        launchButton.addEventListener('click', openModal);
+    });
+</script>
+
 </body>
 </html>
